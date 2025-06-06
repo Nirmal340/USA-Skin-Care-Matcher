@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>USA Luxury Skin Routine Matcher</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      padding: 30px;
+      color: #3a3a3a;
+      background: linear-gradient(to bottom, #fff8f5, #ffeef2);
+      transition: background 0.5s ease;
+    }
+    .quiz-container {
+      max-width: 720px;
+      margin: auto;
+      background: white;
+      border-radius: 20px;
+      padding: 35px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border: 1px solid #f3d0d7;
+    }
+    .quiz-container h2 {
+      text-align: center;
+      color: #b23145;
+      font-size: 28px;
+      margin-bottom: 25px;
+      font-family: 'Georgia', serif;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #7c2e35;
+      font-size: 16px;
+    }
+    select, input[type="email"] {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      background-color: #b23145;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 30px;
+      font-size: 17px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #8a2535;
+    }
+    .quiz-result {
+      display: none;
+      text-align: center;
+      margin-top: 30px;
+      color: #b23145;
+    }
+    .quiz-result img {
+      max-width: 100%;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    #thankYouPopup {
+      display: none;
+      margin-top: 25px;
+      padding: 20px;
+      background-color: #fff0f3;
+      border: 2px solid #b23145;
+      border-radius: 12px;
+      text-align: center;
+      color: #b23145;
+      font-weight: bold;
+    }
+    @media screen and (max-width: 600px) {
+      .quiz-container {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+<body id="mainBody">
+  <div class="quiz-container">
+    <h2>🇺🇸 USA Luxury Skin Routine Matcher</h2>
+    <form id="usaSkinQuiz">
+      <label for="skinType">What is your skin type?</label>
+      <select id="skinType" required>
+        <option value="" disabled selected>Select your skin type</option>
+        <option value="dry">Dry</option>
+        <option value="oily">Oily</option>
+        <option value="combination">Combination</option>
+        <option value="sensitive">Sensitive</option>
+        <option value="normal">Normal</option>
+      </select>
+      <label for="region">Which U.S. region best matches your climate?</label>
+      <select id="region" required>
+        <option value="" disabled selected>Select your region</option>
+        <option value="southeast">Southeast (e.g. Florida)</option>
+        <option value="southwest">Southwest (e.g. Arizona)</option>
+        <option value="northeast">Northeast (e.g. New York)</option>
+        <option value="midwest">Midwest (e.g. Illinois)</option>
+        <option value="westcoast">West Coast (e.g. California)</option>
+        <option value="mountain">Mountain (e.g. Colorado)</option>
+      </select>
+      <button type="submit">✨ Find My Routine</button>
+    </form>
+
+    <div id="emailGate" style="display:none;">
+      <label for="userEmail">Enter your email to unlock your result:</label>
+      <input type="email" id="userEmail" placeholder="you@example.com" required />
+      <button onclick="unlockResult()">Show My Match</button>
+    </div>
+
+    <div class="quiz-result" id="usaQuizResult"></div>
+    <div id="thankYouPopup">🎉 Thank you! Here’s your personalized skincare recommendation.</div>
+  </div>
+
+  <script>
+    const regionStyles = {
+      southeast: '#fff5f0',
+      southwest: '#fff8e6',
+      northeast: '#eef7ff',
+      midwest: '#f8f4ff',
+      westcoast: '#f0fff7',
+      mountain: '#f3fcff'
+    };
+
+    const results = {
+      dry_southeast: {
+        title: "CeraVe Hydrating Cleanser",
+        reason: "Soothes dry skin in humid climates like Florida.",
+        image: "https://via.placeholder.com/400x300?text=CeraVe+Hydrating+Cleanser",
+        url: "#"
+      },
+      oily_northeast: {
+        title: "La Roche-Posay Effaclar Gel",
+        reason: "Fights oil and breakouts in cold climates like New York.",
+        image: "https://via.placeholder.com/400x300?text=Effaclar+Gel",
+        url: "#"
+      },
+      combination_westcoast: {
+        title: "Neutrogena Hydro Boost",
+        reason: "Hydrates without heaviness in mild coastal climates.",
+        image: "https://via.placeholder.com/400x300?text=Hydro+Boost",
+        url: "#"
+      },
+      sensitive_midwest: {
+        title: "Aveeno Calm + Restore",
+        reason: "Perfect for sensitive skin in dry Midwest winters.",
+        image: "https://via.placeholder.com/400x300?text=Calm+%2B+Restore",
+        url: "#"
+      },
+      normal_mountain: {
+        title: "First Aid Beauty Pure Cleanser",
+        reason: "Gently refreshes skin in cooler mountain climates.",
+        image: "https://via.placeholder.com/400x300?text=Pure+Cleanser",
+        url: "#"
+      }
+    };
+
+    document.getElementById("usaSkinQuiz").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const skin = document.getElementById("skinType").value;
+      const region = document.getElementById("region").value;
+      window.userComboKey = `${skin}_${region}`;
+      document.getElementById("emailGate").style.display = "block";
+      document.getElementById("usaQuizResult").style.display = "none";
+      document.body.style.background = regionStyles[region] || '#fff8f5';
+    });
+
+    function unlockResult() {
+      const email = document.getElementById("userEmail").value;
+      if (!email.includes("@")) {
+        alert("Please enter a valid email.");
+        return;
+      }
+
+      const result = results[userComboKey];
+      const resultBox = document.getElementById("usaQuizResult");
+
+      if (result) {
+        resultBox.innerHTML = `
+          <p>🧴 <strong>${result.title}</strong></p>
+          <p>📌 ${result.reason}</p>
+          <a href="${result.url}" target="_blank">
+            <img src="${result.image}" alt="${result.title}" />
+          </a><br/><br/>
+          <a href="${result.url}" target="_blank" style="display:inline-block;padding:12px 25px;background:#b23145;color:white;border-radius:30px;font-weight:bold;text-decoration:none;">🛍️ Shop Now</a>
+        `;
+      } else {
+        resultBox.innerHTML = `<p>Sorry! We’re still working on your combination. Check other matches <a href="#" target="_blank">here</a>.</p>`;
+      }
+
+      resultBox.style.display = "block";
+      document.getElementById("emailGate").style.display = "none";
+      document.getElementById("thankYouPopup").style.display = "block";
+
+      setTimeout(() => {
+        document.getElementById("thankYouPopup").style.display = "none";
+      }, 6000);
+    }
+  </script>
+</body>
+</html>
